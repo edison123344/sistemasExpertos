@@ -1,0 +1,47 @@
+FUNCTION_BLOCK contromotor
+//declarasion de variables
+VAR_INPUT
+	nivelhumedad : REAL;
+END_VAR
+VAR_INPUT
+	niveltemperatura : REAL;
+END_VAR
+VAR_OUTPUT
+	nivelrpm : REAL;
+END_VAR
+//Declaracion dela variables que formaran nuestras tres grafica
+FUZZIFY nivelhumedad
+	TERM alto :=   (50.0, 0.0) (60.0, 1.0) (70.0, 1.0) ;
+	TERM bajo :=   (0.0, 1.0) (20.0, 1.0) (30.0, 0.0);
+	TERM medio :=    (20.0, 0.0) (30.0, 1.0) (50.0, 1.0) (60.0, 0.0);
+END_FUZZIFY
+FUZZIFY niveltemperatura
+	TERM bajo :=  (0.0, 1.0) (10.0, 1.0) (20.0, 0.0);
+	TERM alto :=  (40.0, 0.0) (50.0, 1.0)  (60.0, 1.0);
+	TERM medio := (10.0, 0.0) (20.0, 1.0) (40.0, 1.0) (50.0, 0.0);
+END_FUZZIFY
+DEFUZZIFY nivelrpm
+	TERM bajo := TRIAN 0.0 10.0 20.0;
+	TERM alto := TRIAN 40.0 50.0 60.0;
+	TERM medio:= TRIAN 10.0 30.0 40.0;
+	METHOD : COG;
+	DEFAULT := 0.0;
+END_DEFUZZIFY
+//creasion de las reglas segun la pagina que fue dada de referencia
+RULEBLOCK Regla1
+	ACT : MIN;
+	ACCU : MAX;
+	AND : MIN;
+	RULE 1 : IF nivelhumedad IS alto  AND niveltemperatura IS bajo THEN nivelrpm IS bajo;
+	RULE 2 : IF nivelhumedad IS alto AND niveltemperatura IS medio THEN nivelrpm IS medio;
+	RULE 3 : IF nivelhumedad IS alto  AND niveltemperatura IS alto THEN nivelrpm IS medio;
+    RULE 4 : IF nivelhumedad IS medio  AND niveltemperatura IS bajo THEN nivelrpm IS bajo;
+	RULE 5 : IF nivelhumedad IS medio AND niveltemperatura IS medio THEN nivelrpm IS bajo;
+	RULE 6 : IF nivelhumedad IS medio  AND niveltemperatura IS alto THEN nivelrpm IS medio;
+    RULE 7 : IF nivelhumedad IS bajo  AND niveltemperatura IS bajo THEN nivelrpm IS bajo;
+	RULE 8 : IF nivelhumedad IS bajo AND niveltemperatura IS medio THEN nivelrpm IS bajo;
+	RULE 9 : IF nivelhumedad IS bajo  AND niveltemperatura IS alto THEN nivelrpm IS alto;
+END_RULEBLOCK
+
+END_FUNCTION_BLOCK
+
